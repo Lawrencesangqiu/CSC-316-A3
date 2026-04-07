@@ -1,0 +1,40 @@
+date,time_hour,datetime,activity,birds,bird_count,interaction,proximity,duration_hours,emotional_tone,initiator,is_synthetic
+2026-01-21,12,2026-01-21T12:00:00,Studying,Cholan|Enoue,2,Troublemaking,3,1.0,Playful,Cholan,false
+2026-01-21,19,2026-01-21T19:00:00,Napping,Cholan|Eshue,2,Snuggling,1,2.0,Cuddly,Eshue,false
+2026-01-21,22,2026-01-21T22:00:00,Scrolling,Cholan|Eshue|Enoue,3,Playing,3,1.0,Playful,Enoue,false
+2026-01-22,8,2026-01-22T08:00:00,Resting,Enoue,1,Perching on me,2,0.5,Playful,Enoue,false
+2026-01-22,17,2026-01-22T17:00:00,Studying,Cholan,1,Troublemaking,3,1.5,Affectionate,Cholan,false
+2026-01-22,21,2026-01-22T21:00:00,Napping,Cholan|Eshue,2,Perching on me,2,1.0,Cuddly,Eshue,false
+2026-01-23,11,2026-01-23T11:00:00,Studying,Cholan|Enoue,2,Playing,3,1.0,Affectionate,Cholan,false
+2026-01-23,16,2026-01-23T16:00:00,Napping,Cholan,1,Snuggling,1,2.0,Cuddly,Cholan,false
+2026-01-23,20,2026-01-23T20:00:00,Scrolling,Cholan|Enoue,2,Perching on me,3,1.5,Playful,Cholan,false
+2026-01-24,13,2026-01-24T13:00:00,Scrolling,Cholan|Eshue|Enoue,3,Playing,2,3.0,Affectionate,Enoue,false
+2026-01-24,18,2026-01-24T18:00:00,Resting,Enoue,1,Perching on me,2,2.0,Affectionate,Enoue,false
+2026-01-24,22,2026-01-24T22:00:00,Studying,Cholan|Eshue,2,Troublemaking,3,1.0,Affectionate,Eshue,false
+2026-01-25,12,2026-01-25T12:00:00,Scrolling,Enoue|Eshue,2,Playing,3,2.0,Playful,Enoue,false
+2026-01-25,20,2026-01-25T20:00:00,Napping,Cholan|Eshue,2,Snuggling,1,2.5,Cuddly,Cholan,false
+2026-01-25,23,2026-01-25T23:00:00,Studying,Cholan,1,Troublemaking,2,2.0,Affectionate,Cholan,false
+2026-01-26,14,2026-01-26T14:00:00,Studying,Cholan|Eshue,2,Troublemaking,3,1.0,Playful,Cholan,false
+2026-01-26,17,2026-01-26T17:00:00,Resting,Eshue,1,Snuggling,1,2.5,Cuddly,Eshue,false
+2026-01-26,21,2026-01-26T21:00:00,Scrolling,Cholan|Eshue|Enoue,3,Playing,2,1.5,Affectionate,Enoue,false
+2026-01-27,9,2026-01-27T09:00:00,Studying,Cholan,1,Troublemaking,3,1.0,Playful,Cholan,true
+2026-01-27,14,2026-01-27T14:00:00,Resting,Enoue,1,Perching on me,2,1.5,Affectionate,Enoue,true
+2026-01-27,20,2026-01-27T20:00:00,Napping,Cholan|Eshue,2,Snuggling,1,2.0,Cuddly,Eshue,true
+2026-01-28,11,2026-01-28T11:00:00,Studying,Cholan|Enoue,2,Playing,3,1.5,Playful,Cholan,true
+2026-01-28,16,2026-01-28T16:00:00,Scrolling,Eshue,1,Perching on me,2,1.0,Affectionate,Eshue,true
+2026-01-28,22,2026-01-28T22:00:00,Napping,Cholan,1,Snuggling,1,2.5,Cuddly,Cholan,true
+2026-01-29,10,2026-01-29T10:00:00,Studying,Cholan,1,Troublemaking,3,1.0,Playful,Cholan,true
+2026-01-29,15,2026-01-29T15:00:00,Resting,Enoue|Eshue,2,Playing,2,1.5,Affectionate,Enoue,true
+2026-01-29,21,2026-01-29T21:00:00,Scrolling,Cholan|Enoue,2,Perching on me,2,1.0,Playful,Enoue,true
+2026-01-30,12,2026-01-30T12:00:00,Scrolling,Cholan|Eshue|Enoue,3,Playing,3,2.0,Playful,Enoue,true
+2026-01-30,18,2026-01-30T18:00:00,Napping,Eshue,1,Snuggling,1,2.0,Cuddly,Eshue,true
+2026-01-30,23,2026-01-30T23:00:00,Studying,Cholan,1,Troublemaking,3,1.5,Affectionate,Cholan,true
+2026-01-31,9,2026-01-31T09:00:00,Resting,Enoue,1,Perching on me,2,1.0,Affectionate,Enoue,true
+2026-01-31,14,2026-01-31T14:00:00,Studying,Cholan|Enoue,2,Playing,3,1.0,Playful,Cholan,true
+2026-01-31,20,2026-01-31T20:00:00,Napping,Cholan|Eshue,2,Snuggling,1,2.5,Cuddly,Cholan,true
+2026-02-01,11,2026-02-01T11:00:00,Scrolling,Enoue|Eshue,2,Snuggling,1,1.5,Affectionate,Enoue,true
+2026-02-01,17,2026-02-01T17:00:00,Resting,Eshue,1,Snuggling,1,2.0,Cuddly,Eshue,true
+2026-02-01,22,2026-02-01T22:00:00,Studying,Cholan,1,Troublemaking,3,1.0,Playful,Cholan,true
+2026-02-02,10,2026-02-02T10:00:00,Studying,Cholan|Enoue,2,Playing,3,1.5,Affectionate,Cholan,true
+2026-02-02,16,2026-02-02T16:00:00,Scrolling,Cholan,1,Perching on me,2,1.0,Playful,Cholan,true
+2026-02-02,21,2026-02-02T21:00:00,Napping,Eshue,1,Snuggling,1,2.5,Cuddly,Eshue,true

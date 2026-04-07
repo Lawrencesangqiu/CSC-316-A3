@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bird Interaction Timeline</title>
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <style>
+    :root{
+      --bg:#fbf9f6;
+      --card:#fffdfb;
+      --text:#2d2a26;
+      --muted:#736b63;
+      --line:#d8d1c8;
+      --accent:#7b8f6a;
+    }
+    body{
+      margin:0;
+      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:var(--bg);
+      color:var(--text);
+    }
+    .wrap{
+      max-width:1200px;
+      margin:0 auto;
+      padding:28px 24px 40px;
+    }
+    h1{
+      margin:0 0 8px;
+      font-size:2rem;
+      line-height:1.15;
+    }
+    .subtitle{
+      margin:0 0 18px;
+      color:var(--muted);
+      max-width:840px;
+      line-height:1.5;
+    }
+    .controls{
+      display:grid;
+      grid-template-columns: repeat(4, minmax(160px, 1fr));
+      gap:14px;
+      margin:20px 0 20px;
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:18px;
+      padding:16px;
+      box-shadow:0 8px 24px rgba(0,0,0,0.04);
+    }
+    .control label{
+      display:block;
+      font-size:0.9rem;
+      color:var(--muted);
+      margin-bottom:6px;
+    }
+    .control select{
+      width:100%;
+      padding:10px 12px;
+      border:1px solid var(--line);
+      border-radius:12px;
+      background:white;
+      font:inherit;
+      color:var(--text);
+    }
+    .chart-card{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:20px;
+      padding:18px 18px 8px;
+      box-shadow:0 8px 24px rgba(0,0,0,0.04);
+    }
+    .legend{
+      display:flex;
+      flex-wrap:wrap;
+      gap:18px;
+      align-items:center;
+      margin:10px 0 0;
+      color:var(--muted);
+      font-size:0.92rem;
+    }
+    .legend-item{
+      display:flex;
+      align-items:center;
+      gap:8px;
+    }
+    .legend-title{
+      width:100%;
+      font-weight:600;
+      color:var(--text);
+      margin-right:6px;
+    }
+    .swatch{
+      width:12px;
+      height:12px;
+      border-radius:999px;
+      display:inline-block;
+    }
+    .shape-swatch{
+      width:18px;
+      height:18px;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+    }
+    .shape-swatch svg{
+      overflow:visible;
+    }
+    .tooltip{
+      position:absolute;
+      pointer-events:none;
+      background:rgba(255,255,255,0.97);
+      border:1px solid var(--line);
+      border-radius:14px;
+      padding:10px 12px;
+      box-shadow:0 10px 24px rgba(0,0,0,0.08);
+      font-size:0.9rem;
+      line-height:1.4;
+      opacity:0;
+      transform:translateY(6px);
+      transition:opacity 120ms ease, transform 120ms ease;
+      max-width:280px;
+    }
+    .tooltip.show{
+      opacity:1;
+      transform:translateY(0);
+    }
+    .axis-label{
+      fill:var(--muted);
+      font-size:0.95rem;
+    }
+    .grid line{
+      stroke:#ece5dc;
+    }
+    .grid path, .axis path, .axis line{
+      stroke:#bdb3a8;
+    }
+    .summary{
+      display:flex;
+      gap:20px;
+      flex-wrap:wrap;
+      margin:18px 0 0;
+      color:var(--muted);
+      font-size:0.95rem;
+    }
+    .summary strong{
+      color:var(--text);
+    }
+    @media (max-width: 820px){
+      .controls{
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+    @media (max-width: 560px){
+      .controls{
+        grid-template-columns: 1fr;
+      }
+      h1{font-size:1.6rem;}
+    }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Bird Interaction Timeline</h1>
+  <p class="subtitle">
+    Explore how my interactions with Cholan, Enoue, and Eshue shift across time, activities, proximity, and duration!
+    Colors show the bird, shapes show the interaction type, and point size shows duration.
+    Use the filters to focus on one bird or activity, and switch the y-axis to compare closeness versus time spent :)
+  </p>
+
+  <div class="controls">
+    <div class="control">
+      <label for="birdSelect">Bird</label>
+      <select id="birdSelect"></select>
+    </div>
+    <div class="control">
+      <label for="activitySelect">Activity</label>
+      <select id="activitySelect"></select>
+    </div>
+    <div class="control">
+      <label for="metricSelect">Y-axis metric</label>
+      <select id="metricSelect">
+        <option value="proximity">Proximity</option>
+        <option value="duration_hours">Duration (hours)</option>
+      </select>
+    </div>
+    <div class="control">
+      <label for="sourceSelect">Rows shown</label>
+      <select id="sourceSelect">
+        <option value="all">Original + synthetic</option>
+        <option value="original">Original only</option>
+        <option value="synthetic">Synthetic only</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="chart-card">
+    <svg id="chart"></svg>
+    <div class="legend" id="birdLegend"></div>
+    <div class="legend" id="shapeLegend"></div>
+    <div class="summary" id="summary"></div>
+  </div>
+</div>
+
+<div class="tooltip" id="tooltip"></div>
+
+<script>
+const margin = { top: 30, right: 30, bottom: 60, left: 72 };
+const width = 1100;
+const height = 560;
+const innerWidth = width - margin.left - margin.right;
+const innerHeight = height - margin.top - margin.bottom;
+
+const svg = d3.select("#chart")
+  .attr("viewBox", `0 0 ${width} ${height}`)
+  .attr("width", "100%")
+  .attr("height", "auto");
+
+const g = svg.append("g")
+  .attr("transform", `translate(${margin.left},${margin.top})`);
+
+const xAxisG = g.append("g")
+  .attr("class", "axis")
+  .attr("transform", `translate(0,${innerHeight})`);
+
+const yAxisG = g.append("g").attr("class", "axis");
+const gridG = g.append("g").attr("class", "grid");
+const pointsG = g.append("g");
+const lineG = g.append("g");
+
+g.append("text")
+  .attr("class", "axis-label")
+  .attr("x", innerWidth / 2)
+  .attr("y", innerHeight + 48)
+  .attr("text-anchor", "middle")
+  .text("Date / time");
+
+const yLabel = g.append("text")
+  .attr("class", "axis-label")
+  .attr("transform", "rotate(-90)")
+  .attr("x", -innerHeight / 2)
+  .attr("y", -52)
+  .attr("text-anchor", "middle");
+
+const tooltip = d3.select("#tooltip");
+
+const parseDate = d3.isoParse;
+const formatDate = d3.timeFormat("%b %-d, %-I %p");
+const color = d3.scaleOrdinal()
+  .domain(["Cholan", "Enoue", "Eshue"])
+  .range(["#8c6d5a", "#6c8b9f", "#8d7cae"]);
+
+const symbolScale = d3.scaleOrdinal()
+  .domain(["Troublemaking", "Snuggling", "Playing", "Perching on me"])
+  .range([d3.symbolTriangle, d3.symbolDiamond, d3.symbolCircle, d3.symbolSquare]);
+
+d3.csv("bird_interactions.csv", d => ({
+  ...d,
+  time_hour: +d.time_hour,
+  bird_count: +d.bird_count,
+  proximity: +d.proximity,
+  duration_hours: +d.duration_hours,
+  datetime: parseDate(d.datetime),
+  is_synthetic: d.is_synthetic === "true",
+  bird_list: d.birds.split("|")
+})).then(data => {
+  const birdOptions = ["All", ...new Set(data.flatMap(d => d.bird_list))];
+  const activityOptions = ["All", ...new Set(data.map(d => d.activity))];
+
+  d3.select("#birdSelect")
+    .selectAll("option")
+    .data(birdOptions)
+    .join("option")
+    .attr("value", d => d)
+    .text(d => d);
+
+  d3.select("#activitySelect")
+    .selectAll("option")
+    .data(activityOptions)
+    .join("option")
+    .attr("value", d => d)
+    .text(d => d);
+
+  const birdLegend = d3.select("#birdLegend");
+  birdLegend.append("div")
+    .attr("class", "legend-title")
+    .text("Color = bird");
+  birdLegend.selectAll(".legend-item")
+    .data(color.domain())
+    .join("div")
+    .attr("class", "legend-item")
+    .html(d => `<span class="swatch" style="background:${color(d)}"></span>${d}`);
+
+  const interactionTypes = symbolScale.domain();
+
+  const shapeLegend = d3.select("#shapeLegend");
+  shapeLegend.append("div")
+    .attr("class", "legend-title")
+    .text("Shape = interaction type");
+
+  const shapeItems = shapeLegend.selectAll(".legend-item")
+    .data(interactionTypes)
+    .join("div")
+    .attr("class", "legend-item");
+
+  shapeItems.append("span")
+    .attr("class", "shape-swatch")
+    .each(function(d){
+      const svg = d3.select(this).append("svg")
+        .attr("width", 18)
+        .attr("height", 18);
+      svg.append("path")
+        .attr("transform", "translate(9,9)")
+        .attr("d", d3.symbol().type(symbolScale(d)).size(90)())
+        .attr("fill", "#8a8178")
+        .attr("stroke", "#ffffff")
+        .attr("stroke-width", 0.8);
+    });
+
+  shapeItems.append("span").text(d => d);
+
+  function getPrimaryBird(d){
+    const selectedBird = d3.select("#birdSelect").property("value");
+    if (selectedBird !== "All" && d.bird_list.includes(selectedBird)) return selectedBird;
+    return d.initiator;
+  }
+
+  function filteredData() {
+    const selectedBird = d3.select("#birdSelect").property("value");
+    const selectedActivity = d3.select("#activitySelect").property("value");
+    const sourceMode = d3.select("#sourceSelect").property("value");
+
+    return data.filter(d => {
+      const birdPass = selectedBird === "All" || d.bird_list.includes(selectedBird);
+      const activityPass = selectedActivity === "All" || d.activity === selectedActivity;
+      const sourcePass =
+        sourceMode === "all" ||
+        (sourceMode === "original" && !d.is_synthetic) ||
+        (sourceMode === "synthetic" && d.is_synthetic);
+      return birdPass && activityPass && sourcePass;
+    }).sort((a, b) => d3.ascending(a.datetime, b.datetime));
+  }
+
+  function update() {
+    const metric = d3.select("#metricSelect").property("value");
+    const rows = filteredData();
+
+    const yDomain = metric === "proximity" ? [0.75, 3.25] : [0, d3.max(data, d => d.duration_hours) + 0.5];
+    const x = d3.scaleTime()
+      .domain(d3.extent(data, d => d.datetime))
+      .range([0, innerWidth]);
+
+    const y = d3.scaleLinear()
+      .domain(yDomain)
+      .nice()
+      .range([innerHeight, 0]);
+
+    yLabel.text(metric === "proximity" ? "Proximity (1 = closest, 3 = farthest)" : "Duration (hours)");
+
+    xAxisG.transition().duration(700)
+      .call(d3.axisBottom(x).ticks(8).tickFormat(d3.timeFormat("%b %-d")));
+
+    yAxisG.transition().duration(700)
+      .call(d3.axisLeft(y).ticks(metric === "proximity" ? 3 : 6));
+
+    gridG.transition().duration(700)
+      .call(d3.axisLeft(y).ticks(metric === "proximity" ? 3 : 6).tickSize(-innerWidth).tickFormat(""));
+
+    const line = d3.line()
+      .x(d => x(d.datetime))
+      .y(d => y(d[metric]));
+
+    lineG.selectAll("path")
+      .data(rows.length ? [rows] : [])
+      .join(
+        enter => enter.append("path")
+          .attr("fill", "none")
+          .attr("stroke", "#cfc5ba")
+          .attr("stroke-width", 2)
+          .attr("opacity", 0.9)
+          .attr("d", line),
+        update => update.transition().duration(700).attr("d", line),
+        exit => exit.remove()
+      );
+
+    const points = pointsG.selectAll("path.event")
+      .data(rows, d => d.datetime + d.activity + d.birds + d.interaction);
+
+    points.join(
+      enter => enter.append("path")
+        .attr("class", "event")
+        .attr("transform", d => `translate(${x(d.datetime)},${y(d[metric])})`)
+        .attr("d", d3.symbol().type(d => symbolScale(d.interaction)).size(d => 70 + d.duration_hours * 65))
+        .attr("fill", d => color(getPrimaryBird(d)))
+        .attr("stroke", d => d.is_synthetic ? "#4d453e" : "#ffffff")
+        .attr("stroke-width", d => d.is_synthetic ? 1.6 : 1.1)
+        .attr("opacity", 0)
+        .on("mouseenter", function(event, d){
+          d3.select(this).attr("stroke-width", 2.5);
+          tooltip
+            .classed("show", true)
+            .html(`
+              <strong>${formatDate(d.datetime)}</strong><br>
+              <strong>Birds:</strong> ${d.bird_list.join(", ")}<br>
+              <strong>Activity:</strong> ${d.activity}<br>
+              <strong>Interaction:</strong> ${d.interaction}<br>
+              <strong>Proximity:</strong> ${d.proximity}<br>
+              <strong>Duration:</strong> ${d.duration_hours} hour(s)<br>
+              <strong>Tone:</strong> ${d.emotional_tone}<br>
+              <strong>Initiator:</strong> ${d.initiator}<br>
+              <strong>Source:</strong> ${d.is_synthetic ? "synthetic" : "original"}
+            `);
+        })
+        .on("mousemove", function(event){
+          tooltip
+            .style("left", (event.pageX + 14) + "px")
+            .style("top", (event.pageY - 18) + "px");
+        })
+        .on("mouseleave", function(){
+          d3.select(this).attr("stroke-width", function(d){ return d.is_synthetic ? 1.6 : 1.1; });
+          tooltip.classed("show", false);
+        })
+        .transition().duration(500)
+        .attr("opacity", 0.95),
+      update => update.transition().duration(700)
+        .attr("transform", d => `translate(${x(d.datetime)},${y(d[metric])})`)
+        .attr("d", d3.symbol().type(d => symbolScale(d.interaction)).size(d => 70 + d.duration_hours * 65))
+        .attr("fill", d => color(getPrimaryBird(d))),
+      exit => exit.transition().duration(250).attr("opacity", 0).remove()
+    );
+
+    const total = rows.length;
+    const avgDuration = total ? d3.mean(rows, d => d.duration_hours).toFixed(2) : "0.00";
+    const cuddlyCount = rows.filter(d => d.emotional_tone === "Cuddly").length;
+    const playfulCount = rows.filter(d => d.emotional_tone === "Playful").length;
+
+    d3.select("#summary").html(`
+      <div><strong>${total}</strong> events shown</div>
+      <div><strong>${avgDuration}</strong> average hours per interaction</div>
+      <div><strong>${cuddlyCount}</strong> cuddly events</div>
+      <div><strong>${playfulCount}</strong> playful events</div>
+    `);
+  }
+
+  d3.selectAll("#birdSelect, #activitySelect, #metricSelect, #sourceSelect").on("change", update);
+  update();
+});
+</script>
+</body>
+</html>
